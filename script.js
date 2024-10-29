@@ -31,8 +31,10 @@ const subjects = {
             [3, 10, "C-102"],
             [5, 9, "C-202"],
             [5, 10, "C-202"]
+
         ]
     },
+
 };
 
 function updateSchedule() {
@@ -46,26 +48,30 @@ function updateSchedule() {
         }
     }
 
+    // Verificar conflictos y actualizar el horario
     const checkboxes = document.querySelectorAll("input[type='checkbox']:checked");
     let scheduleMap = {};
-    let conflicts = []; // Para almacenar los conflictos detectados
 
     for (let checkbox of checkboxes) {
         const subjectId = checkbox.value;
         const subject = subjects[subjectId];
 
         for (let slot of subject.slots) {
-            const day = slot[0];
-            const hour = slot[1];
+            const day = slot[0]; // 1: Lunes, 2: Martes, etc.
+            const hour = slot[1]; // 7, 8, etc.
             const classroom = slot[2];
             const key = `${day}-${hour}`;
 
             if (scheduleMap[key]) {
-                // Conflicto detectado, agregar a la lista de conflictos
-                conflicts.push(`Conflicto detectado: ${subject.name} coincide con ${scheduleMap[key].subject.name} el día ${day} a la hora ${hour}.`);
+                // Conflicto detectado
+                alert(`Conflicto detectado: ${subject.name} coincide con ${scheduleMap[key].subject.name} en el mismo día y hora.`);
 
-                // Desmarcar la materia conflictiva en lugar de interrumpir el ciclo
+                // Desmarcar ambas materias conflictivas
                 checkbox.checked = false;
+                document.getElementById(`materia${scheduleMap[key].subjectId}`).checked = false;
+
+                // Reiniciar la función para limpiar y actualizar el horario
+                return updateSchedule();
             } else {
                 // Registrar el horario sin conflicto
                 scheduleMap[key] = { subjectId, subject };
@@ -78,10 +84,5 @@ function updateSchedule() {
                 rows[rowIndex].cells[columnIndex].innerText += `${subject.name} - ${classroom}`;
             }
         }
-    }
-
-    // Mostrar todos los conflictos al final si hay alguno
-    if (conflicts.length > 0) {
-        alert(conflicts.join("\n"));
     }
 }
